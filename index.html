@@ -47,7 +47,7 @@ input,textarea,select{width:100%;margin-bottom:10px;padding:10px;box-sizing:bord
 <button onclick="closeModal()">Annuleren</button>
 </div></div>
 <script>
-const people=['Jolijn','Bas','Emma','Lucas'];
+const people=['Jolijn','Gerrit','Anette','Marieke','Rene','Lilli','Nijs'];
 let activeTab=people[0];
 let data=JSON.parse(localStorage.getItem('wishlist'))||{};
 people.forEach(p=>{if(!data[p]) data[p]=[]});

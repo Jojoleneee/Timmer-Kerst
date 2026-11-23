@@ -3,15 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>🎄 Familie Verlanglijstjes</title>
 
 <style>
-
 :root{
     --green:#184d47;
     --red:#9b2226;
-    --gold:#ddb347;
 }
 
 body{
@@ -80,6 +77,7 @@ header{
     cursor:pointer;
     display:flex;
     justify-content:space-between;
+    font-weight:bold;
 }
 
 .card-body{
@@ -105,6 +103,16 @@ header{
 
 .delete-btn{
     background:var(--red);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:10px;
+    cursor:pointer;
+    margin-left:5px;
+}
+
+.edit-btn{
+    background:#2563eb;
     color:white;
     border:none;
     border-radius:8px;
@@ -139,7 +147,6 @@ input, textarea, select{
 a{
     color:#0a66c2;
 }
-
 </style>
 </head>
 <body>
@@ -157,7 +164,8 @@ placeholder="🔍 Zoek cadeau..."
 oninput="render()">
 
 <label>
-<input type="checkbox"
+<input
+type="checkbox"
 id="surprise"
 onchange="render()">
 🎅 Verrassingsmodus
@@ -170,14 +178,13 @@ onchange="render()">
 </div>
 
 <div id="tabs" class="tabs"></div>
-
 <div id="content" class="content"></div>
 
 <div id="modal" class="modal">
 
 <div class="modal-content">
 
-<h2>Nieuwe wens</h2>
+<h2 id="modalTitle">Nieuwe wens</h2>
 
 <select id="personSelect"></select>
 
@@ -197,10 +204,16 @@ onchange="render()">
 <option value="1">⭐</option>
 </select>
 
-<textarea id="notes" placeholder="Opmerking"></textarea>
+<textarea
+id="notes"
+placeholder="Opmerking"></textarea>
 
-<button class="add-btn" onclick="saveGift()">
+<button
+class="add-btn"
+onclick="saveGift()">
+
 Opslaan
+
 </button>
 
 <button onclick="closeModal()">
@@ -213,7 +226,10 @@ Annuleren
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {
+initializeApp
+}
+from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 
 import {
 getFirestore,
@@ -221,6 +237,7 @@ collection,
 addDoc,
 deleteDoc,
 doc,
+updateDoc,
 query,
 orderBy,
 onSnapshot
@@ -230,23 +247,16 @@ from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 const firebaseConfig = {
 
 apiKey: "AIzaSyABxYQSoVHiXKK-X5qr3KFGUJJEYw9Ws6s",
-
 authDomain: "timmer-kerst.firebaseapp.com",
-
 projectId: "timmer-kerst",
-
 storageBucket: "timmer-kerst.firebasestorage.app",
-
 messagingSenderId: "211240960325",
-
 appId: "1:211240960325:web:e36c16d53740e562f53e2c",
-
 measurementId: "G-QQEY03K7RJ"
 
 };
 
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 
 const people = [
@@ -259,65 +269,160 @@ const people = [
 "Nijs"
 ];
 
-let activeTab = "Jolijn";
 let gifts = [];
+let activeTab = "Jolijn";
+let editingId = null;
+
+function clearForm(){
+
+document.getElementById("title").value = "";
+document.getElementById("link").value = "";
+document.getElementById("image").value = "";
+document.getElementById("price").value = "";
+document.getElementById("notes").value = "";
+document.getElementById("priority").value = "5";
+
+}
 
 window.openModal = function(){
 
-document.getElementById("modal").style.display="flex";
+editingId = null;
+
+document.getElementById("modalTitle").innerText =
+"Nieuwe wens";
+
+clearForm();
 
 const select =
 document.getElementById("personSelect");
 
-select.innerHTML="";
+select.innerHTML = "";
 
 people.forEach(person=>{
-
 select.innerHTML +=
 `<option>${person}</option>`;
-
 });
+
+document.getElementById("modal").style.display =
+"flex";
 
 }
 
 window.closeModal = function(){
 
-document.getElementById("modal").style.display="none";
+document.getElementById("modal").style.display =
+"none";
+
+}
+
+window.editGift = function(id){
+
+const gift =
+gifts.find(g=>g.id===id);
+
+if(!gift) return;
+
+editingId = id;
+
+document.getElementById("modalTitle").innerText =
+"Wens bewerken";
+
+const select =
+document.getElementById("personSelect");
+
+select.innerHTML = "";
+
+people.forEach(person=>{
+select.innerHTML +=
+`<option>${person}</option>`;
+});
+
+document.getElementById("personSelect").value =
+gift.person;
+
+document.getElementById("title").value =
+gift.title || "";
+
+document.getElementById("link").value =
+gift.link || "";
+
+document.getElementById("image").value =
+gift.image || "";
+
+document.getElementById("price").value =
+gift.price || "";
+
+document.getElementById("notes").value =
+gift.notes || "";
+
+document.getElementById("priority").value =
+gift.priority || 5;
+
+document.getElementById("modal").style.display =
+"flex";
 
 }
 
 window.saveGift = async function(){
 
 const title =
-document.getElementById("title").value;
+document.getElementById("title").value.trim();
 
 if(!title){
+
 alert("Vul een cadeau in");
 return;
+
 }
 
-await addDoc(
-collection(db,"wishes"),
-{
+const giftData = {
+
 person:
 document.getElementById("personSelect").value,
+
 title,
+
 link:
 document.getElementById("link").value,
+
 image:
 document.getElementById("image").value,
+
 price:
 document.getElementById("price").value,
+
 priority:
 parseInt(
 document.getElementById("priority").value
 ),
+
 notes:
-document.getElementById("notes").value,
-created:
-Date.now()
+document.getElementById("notes").value
+
+};
+
+if(editingId){
+
+await updateDoc(
+doc(db,"wishes",editingId),
+giftData
+);
+
+}else{
+
+await addDoc(
+collection(db,"wishes"),
+{
+...giftData,
+created: Date.now()
 }
 );
+
+}
+
+clearForm();
+
+editingId = null;
 
 closeModal();
 
@@ -335,35 +440,6 @@ doc(db,"wishes",id)
 
 }
 
-function renderTabs(){
-
-const tabs =
-document.getElementById("tabs");
-
-tabs.innerHTML="";
-
-people.forEach(person=>{
-
-const count =
-gifts.filter(
-g=>g.person===person
-).length;
-
-tabs.innerHTML +=
-`
-<button
-class="tab ${person===activeTab?'active':''}"
-onclick="changeTab('${person}')">
-
-${person} (${count})
-
-</button>
-`;
-
-});
-
-}
-
 window.changeTab = function(person){
 
 activeTab = person;
@@ -378,9 +454,37 @@ const card =
 document.getElementById(id);
 
 card.style.display =
-card.style.display==="block"
+card.style.display === "block"
 ? "none"
 : "block";
+
+}
+
+function renderTabs(){
+
+const tabs =
+document.getElementById("tabs");
+
+tabs.innerHTML = "";
+
+people.forEach(person=>{
+
+const count =
+gifts.filter(
+g=>g.person===person
+).length;
+
+tabs.innerHTML += `
+<button
+class="tab ${person===activeTab?'active':''}"
+onclick="changeTab('${person}')">
+
+${person} (${count})
+
+</button>
+`;
+
+});
 
 }
 
@@ -388,30 +492,25 @@ function render(){
 
 renderTabs();
 
-const surprise =
-document.getElementById("surprise")
-.checked;
-
 const search =
 document.getElementById("search")
 .value
 .toLowerCase();
 
+const surprise =
+document.getElementById("surprise")
+.checked;
+
 const content =
 document.getElementById("content");
 
-content.innerHTML="";
+content.innerHTML = "";
 
 const filtered =
 gifts
-.filter(
-g =>
-g.person===activeTab
-)
-.filter(
-g =>
-g.title
-.toLowerCase()
+.filter(g=>g.person===activeTab)
+.filter(g=>
+g.title.toLowerCase()
 .includes(search)
 )
 .sort(
@@ -425,29 +524,28 @@ content.innerHTML += `
 
 <div class="card">
 
-<div class="card-header"
+<div
+class="card-header"
 onclick="toggleCard('card${index}')">
 
 <div>
-
 ${"⭐".repeat(gift.priority)}
-${surprise ? "🎁 Cadeau" : gift.title}
-
+${surprise ? " 🎁 Cadeau" : " " + gift.title}
 </div>
 
 <div>▼</div>
 
 </div>
 
-<div class="card-body"
+<div
+class="card-body"
 id="card${index}">
 
 ${gift.image ?
 `<img src="${gift.image}">`
-: ''}
+: ""}
 
 ${!surprise ? `
-
 <p><strong>💰</strong>
 ${gift.price || "-"}</p>
 
@@ -458,12 +556,19 @@ ${gift.link ?
 target="_blank">
 Bekijk cadeau
 </a>`
-: ''}
-
+: ""}
 `
-: ''}
+: ""}
 
 <br><br>
+
+<button
+class="edit-btn"
+onclick="editGift('${gift.id}')">
+
+✏️ Bewerken
+
+</button>
 
 <button
 class="delete-btn"
@@ -491,18 +596,15 @@ orderBy("priority","desc")
 
 onSnapshot(q,(snapshot)=>{
 
-gifts = snapshot.docs.map(doc=>({
-
-id:doc.id,
+gifts =
+snapshot.docs.map(doc=>({
+id: doc.id,
 ...doc.data()
-
 }));
 
 render();
 
 });
-
-renderTabs();
 
 </script>
 

@@ -1,65 +1,510 @@
-html_content = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>🎄 Familie Verlanglijstjes</title>
+
 <style>
-:root{--green:#184d47;--red:#9b2226;--gold:#ddb347;}
-body{margin:0;background:#f4f4f4;font-family:Segoe UI,Arial,sans-serif;}
-header{background:var(--green);color:white;padding:20px;text-align:center;}
-.topbar{padding:15px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;}
-.search{padding:10px;width:250px;max-width:90%;}
-.tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:20px;}
-.tab{padding:10px 20px;cursor:pointer;border:none;border-radius:8px;background:white;}
-.tab.active{background:var(--red);color:white;}
-.content{max-width:900px;margin:auto;padding:20px;}
-.card{background:white;border-radius:12px;margin-bottom:15px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.1);}
-.card-header{padding:15px;cursor:pointer;display:flex;justify-content:space-between;}
-.card-body{display:none;padding:15px;border-top:1px solid #eee;}
-.card img{width:100%;max-height:300px;object-fit:contain;}
-.add-btn{background:var(--green);color:white;border:none;padding:12px 18px;border-radius:8px;cursor:pointer;}
-.delete-btn{background:var(--red);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);justify-content:center;align-items:center;}
-.modal-content{background:white;padding:20px;width:450px;max-width:90%;border-radius:12px;}
-input,textarea,select{width:100%;margin-bottom:10px;padding:10px;box-sizing:border-box;}
-.toggle{display:flex;justify-content:center;gap:10px;align-items:center;}
+
+:root{
+    --green:#184d47;
+    --red:#9b2226;
+    --gold:#ddb347;
+}
+
+body{
+    margin:0;
+    font-family:Segoe UI,Arial,sans-serif;
+    background:#f5f5f5;
+}
+
+header{
+    background:var(--green);
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+.topbar{
+    padding:15px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+}
+
+.search{
+    padding:10px;
+    width:250px;
+}
+
+.tabs{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin:15px;
+}
+
+.tab{
+    border:none;
+    padding:10px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    background:white;
+}
+
+.tab.active{
+    background:var(--red);
+    color:white;
+}
+
+.content{
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    margin-bottom:15px;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+
+.card-header{
+    padding:15px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+}
+
+.card-body{
+    display:none;
+    padding:15px;
+    border-top:1px solid #eee;
+}
+
+.card img{
+    width:100%;
+    max-height:350px;
+    object-fit:contain;
+}
+
+.add-btn{
+    background:var(--green);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:12px 16px;
+    cursor:pointer;
+}
+
+.delete-btn{
+    background:var(--red);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:10px;
+    cursor:pointer;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    background:white;
+    width:500px;
+    max-width:90%;
+    padding:20px;
+    border-radius:12px;
+}
+
+input, textarea, select{
+    width:100%;
+    margin-bottom:10px;
+    padding:10px;
+    box-sizing:border-box;
+}
+
+a{
+    color:#0a66c2;
+}
+
 </style>
 </head>
 <body>
-<header><h1>🎄 Familie Verlanglijstjes 🎄</h1></header>
+
+<header>
+<h1>🎄 Familie Verlanglijstjes 🎄</h1>
+</header>
+
 <div class="topbar">
-<input id="search" class="search" placeholder="Zoek cadeau..." oninput="render()">
-<label class="toggle"><input type="checkbox" id="surprise" onchange="render()"> 🎅 Verrassingsmodus</label>
-<button class="add-btn" onclick="openModal()">➕ Nieuwe wens</button>
+
+<input
+id="search"
+class="search"
+placeholder="🔍 Zoek cadeau..."
+oninput="render()">
+
+<label>
+<input type="checkbox"
+id="surprise"
+onchange="render()">
+🎅 Verrassingsmodus
+</label>
+
+<button class="add-btn" onclick="openModal()">
+➕ Nieuwe wens
+</button>
+
 </div>
+
 <div id="tabs" class="tabs"></div>
+
 <div id="content" class="content"></div>
-<div class="modal" id="modal"><div class="modal-content"><h2>Nieuwe wens</h2>
+
+<div id="modal" class="modal">
+
+<div class="modal-content">
+
+<h2>Nieuwe wens</h2>
+
 <select id="personSelect"></select>
+
 <input id="title" placeholder="Cadeau">
+
 <input id="link" placeholder="Productlink">
+
 <input id="image" placeholder="Afbeeldingslink">
+
 <input id="price" placeholder="Richtprijs (€)">
-<select id="priority"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
+
+<select id="priority">
+<option value="5">⭐⭐⭐⭐⭐</option>
+<option value="4">⭐⭐⭐⭐</option>
+<option value="3">⭐⭐⭐</option>
+<option value="2">⭐⭐</option>
+<option value="1">⭐</option>
+</select>
+
 <textarea id="notes" placeholder="Opmerking"></textarea>
-<button class="add-btn" onclick="saveGift()">Opslaan</button>
-<button onclick="closeModal()">Annuleren</button>
-</div></div>
-<script>
-const people=['Jolijn','Gerrit','Anette','Marieke','Rene','Lilli','Nijs'];
-let activeTab=people[0];
-let data=JSON.parse(localStorage.getItem('wishlist'))||{};
-people.forEach(p=>{if(!data[p]) data[p]=[]});
-function saveData(){localStorage.setItem('wishlist',JSON.stringify(data));}
-function renderTabs(){const tabs=document.getElementById('tabs');tabs.innerHTML='';people.forEach(person=>{tabs.innerHTML+=`<button class="tab ${person===activeTab?'active':''}" onclick="changeTab('${person}')">${person} (${data[person].length})</button>`;});}
-function changeTab(person){activeTab=person;render();}
-function render(){renderTabs();const content=document.getElementById('content');const search=document.getElementById('search').value.toLowerCase();const surprise=document.getElementById('surprise').checked;let gifts=[...data[activeTab]].sort((a,b)=>b.priority-a.priority);content.innerHTML='';gifts.forEach((gift,index)=>{if(search && !gift.title.toLowerCase().includes(search)) return;content.innerHTML+=`<div class="card"><div class="card-header" onclick="toggleCard(${index})"><div>${'⭐'.repeat(gift.priority)} ${surprise?'🎁 Cadeau':gift.title}</div><div>▼</div></div><div class="card-body" id="card-${index}">${gift.image?`<img src="${gift.image}">`:''}${!surprise?`<p><strong>💰</strong> €${gift.price||'-'}</p><p>${gift.notes||''}</p>${gift.link?`<a href="${gift.link}" target="_blank">Bekijk cadeau</a>`:''}`:''}<br><br><button class="delete-btn" onclick="deleteGift('${activeTab}',${index})">🗑️ Verwijderen</button></div></div>`;});}
-function toggleCard(i){const c=document.getElementById('card-'+i);c.style.display=c.style.display==='block'?'none':'block';}
-function openModal(){document.getElementById('modal').style.display='flex';const s=document.getElementById('personSelect');s.innerHTML='';people.forEach(p=>s.innerHTML+=`<option>${p}</option>`);}
-function closeModal(){document.getElementById('modal').style.display='none';}
-function saveGift(){const person=document.getElementById('personSelect').value;data[person].push({title:document.getElementById('title').value,link:document.getElementById('link').value,image:document.getElementById('image').value,price:document.getElementById('price').value,priority:parseInt(document.getElementById('priority').value),notes:document.getElementById('notes').value});saveData();closeModal();render();}
-function deleteGift(person,index){if(confirm('Wens verwijderen?')){data[person].splice(index,1);saveData();render();}}
+
+<button class="add-btn" onclick="saveGift()">
+Opslaan
+</button>
+
+<button onclick="closeModal()">
+Annuleren
+</button>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+addDoc,
+deleteDoc,
+doc,
+query,
+orderBy,
+onSnapshot
+}
+from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyABxYQSoVHiXKK-X5qr3KFGUJJEYw9Ws6s",
+
+authDomain: "timmer-kerst.firebaseapp.com",
+
+projectId: "timmer-kerst",
+
+storageBucket: "timmer-kerst.firebasestorage.app",
+
+messagingSenderId: "211240960325",
+
+appId: "1:211240960325:web:e36c16d53740e562f53e2c",
+
+measurementId: "G-QQEY03K7RJ"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const people = [
+"Jolijn",
+"Gerrit",
+"Anette",
+"Marieke",
+"Rene",
+"Lilli",
+"Nijs"
+];
+
+let activeTab = "Jolijn";
+let gifts = [];
+
+window.openModal = function(){
+
+document.getElementById("modal").style.display="flex";
+
+const select =
+document.getElementById("personSelect");
+
+select.innerHTML="";
+
+people.forEach(person=>{
+
+select.innerHTML +=
+`<option>${person}</option>`;
+
+});
+
+}
+
+window.closeModal = function(){
+
+document.getElementById("modal").style.display="none";
+
+}
+
+window.saveGift = async function(){
+
+const title =
+document.getElementById("title").value;
+
+if(!title){
+alert("Vul een cadeau in");
+return;
+}
+
+await addDoc(
+collection(db,"wishes"),
+{
+person:
+document.getElementById("personSelect").value,
+title,
+link:
+document.getElementById("link").value,
+image:
+document.getElementById("image").value,
+price:
+document.getElementById("price").value,
+priority:
+parseInt(
+document.getElementById("priority").value
+),
+notes:
+document.getElementById("notes").value,
+created:
+Date.now()
+}
+);
+
+closeModal();
+
+}
+
+window.deleteGift = async function(id){
+
+if(confirm("Wens verwijderen?")){
+
+await deleteDoc(
+doc(db,"wishes",id)
+);
+
+}
+
+}
+
+function renderTabs(){
+
+const tabs =
+document.getElementById("tabs");
+
+tabs.innerHTML="";
+
+people.forEach(person=>{
+
+const count =
+gifts.filter(
+g=>g.person===person
+).length;
+
+tabs.innerHTML +=
+`
+<button
+class="tab ${person===activeTab?'active':''}"
+onclick="changeTab('${person}')">
+
+${person} (${count})
+
+</button>
+`;
+
+});
+
+}
+
+window.changeTab = function(person){
+
+activeTab = person;
+
 render();
+
+}
+
+window.toggleCard = function(id){
+
+const card =
+document.getElementById(id);
+
+card.style.display =
+card.style.display==="block"
+? "none"
+: "block";
+
+}
+
+function render(){
+
+renderTabs();
+
+const surprise =
+document.getElementById("surprise")
+.checked;
+
+const search =
+document.getElementById("search")
+.value
+.toLowerCase();
+
+const content =
+document.getElementById("content");
+
+content.innerHTML="";
+
+const filtered =
+gifts
+.filter(
+g =>
+g.person===activeTab
+)
+.filter(
+g =>
+g.title
+.toLowerCase()
+.includes(search)
+)
+.sort(
+(a,b)=>
+b.priority-a.priority
+);
+
+filtered.forEach((gift,index)=>{
+
+content.innerHTML += `
+
+<div class="card">
+
+<div class="card-header"
+onclick="toggleCard('card${index}')">
+
+<div>
+
+${"⭐".repeat(gift.priority)}
+${surprise ? "🎁 Cadeau" : gift.title}
+
+</div>
+
+<div>▼</div>
+
+</div>
+
+<div class="card-body"
+id="card${index}">
+
+${gift.image ?
+`<img src="${gift.image}">`
+: ''}
+
+${!surprise ? `
+
+<p><strong>💰</strong>
+${gift.price || "-"}</p>
+
+<p>${gift.notes || ""}</p>
+
+${gift.link ?
+`<a href="${gift.link}"
+target="_blank">
+Bekijk cadeau
+</a>`
+: ''}
+
+`
+: ''}
+
+<br><br>
+
+<button
+class="delete-btn"
+onclick="deleteGift('${gift.id}')">
+
+🗑️ Verwijderen
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+const q =
+query(
+collection(db,"wishes"),
+orderBy("priority","desc")
+);
+
+onSnapshot(q,(snapshot)=>{
+
+gifts = snapshot.docs.map(doc=>({
+
+id:doc.id,
+...doc.data()
+
+}));
+
+render();
+
+});
+
+renderTabs();
+
 </script>
-</body></html>
+
+</body>
+</html>
